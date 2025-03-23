@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>图片字幕生成器</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+  <h1>小野的图片字幕生成器</h1>
+    <div class="upload-section">
+      <input type="file" id="imageInput" accept="image/*">
+      <canvas id="previewCanvas"></canvas>
+      <div class="upload-status" id="uploadStatus">请选择图片文件</div>
+    </div>
+    
+    <div class="controls">
+      <div class="style-controls">
+        <div>
+          <label>字幕高度：</label>
+          <input type="range" id="subHeight" min="30" max="100" value="50">
+        </div>
+        <div>
+          <label>字体大小：</label>
+          <input type="number" id="fontSize" min="12" max="72" value="24">
+        </div>
+        <div>
+          <label>字体颜色：</label>
+          <input type="color" id="textColor" value="#ffffff">
+        </div>
+        <div>
+          <label>轮廓颜色：</label>
+          <input type="color" id="strokeColor" value="#000000">
+        </div>
+        <div>
+          <label>边框颜色：</label>
+          <input type="color" id="borderColor" value="#ff0000">
+        </div>
+        <div>
+          <label>边框粗细：</label>
+          <input type="range" id="borderWidth" min="1" max="10" value="2">
+        </div>
+      </div>
+      
+      <div class="text-input">
+        <textarea id="subtitleText" placeholder="请输入字幕内容，每行一条字幕"></textarea>
+      </div>
+      
+      <div class="actions">
+        <button onclick="generateSubtitle()">生成字幕图片</button>
+        <button onclick="saveImage()">保存图片</button>
+      </div>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
