@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>p5.js 分形树</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #ffffff;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background-color: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            min-width: 400px;
+            transition: all 0.3s ease;
+        }
+        
+        .controls::before {
+            content: '参数控制区';
+            display: block;
+            font-size: 18px;
+            font-weight: 500;
+            color: #1d1d1f;
+            margin-bottom: 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            padding-bottom: 8px;
+        }
+        
+        .controls:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .controls label {
+            display: grid;
+            grid-template-columns: 120px 1fr 40px;
+            align-items: center;
+            margin-bottom: 20px;
+            color: #1d1d1f;
+            font-size: 14px;
+            font-weight: 500;
+            gap: 12px;
+        }
+        
+        .controls label > span {
+            margin: 0;
+        }
+        
+        .controls label > input[type="range"],
+        .controls label > select,
+        .controls label > input[type="color"] {
+            width: 100%;
+            margin: 0;
+        }
+        
+        input[type="color"] {
+            -webkit-appearance: none;
+            padding: 0;
+            border: none;
+            border-radius: 4px;
+            height: 32px;
+            cursor: pointer;
+        }
+        
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 4px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            -webkit-appearance: none;
+            margin: 8px 0;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #0071e3;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #0077ed;
+            transform: scale(1.1);
+        }
+        
+        select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            background-color: #fff;
+            color: #1d1d1f;
+            font-size: 14px;
+            margin-bottom: 20px;
+            font-family: inherit;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        
+        select:hover {
+            border-color: #0071e3;
+        }
+        
+        select:focus {
+            border-color: #0071e3;
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.3);
+        }
+        
+        .title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 36px;
+            font-weight: 500;
+            color: #000000;
+            text-align: center;
+            opacity: 0;
+            animation: fadeIn 0.8s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -20px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">分形树</h1>
+    <!-- 控制面板：包含三个可拖动的进度条，用于调整分形树的参数 -->
+    <div class="controls">
+        <label for="depth">
+            <span>树枝层数:</span>
+            <input type="range" id="depth" min="1" max="12" value="9">
+            <span id="depthValue">9</span>
+        </label>
+        
+        <label for="angle">
+            <span>分叉角度:</span>
+            <input type="range" id="angle" min="10" max="45" value="25">
+            <span id="angleValue">25</span>
+        </label>
+        
+        <label for="reduction">
+            <span>枝干缩短比例:</span>
+            <input type="range" id="reduction" min="50" max="80" value="67">
+                <span id="reductionValue">0.67</span>
+        </label>
+        
+        <label for="style">
+            <span>末端样式:</span>
+            <select id="style">
+                <option value="leaf">叶子</option>
+                <option value="snowflake">雪花</option>
+                <option value="circle">圆形</option>
+                <option value="square">方形</option>
+            </select>
+        </label>
+
+        <label for="baseColor">
+            <span>树干基础色:</span>
+            <input type="color" id="baseColor" value="#228B22">
+        </label>
+
+        <label for="gradientColor">
+            <span>树干渐变色:</span>
+            <input type="color" id="gradientColor" value="#32CD32">
+        </label>
+
+        <label for="endColor">
+            <span>末端样式颜色:</span>
+            <input type="color" id="endColor" value="#8BC34A">
+        </label>
+    </div>
+
+    <script src="sketch.js"></script>
+</body>
+</html>
